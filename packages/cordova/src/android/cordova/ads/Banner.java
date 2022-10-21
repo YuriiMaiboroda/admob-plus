@@ -1,6 +1,7 @@
 package admob.plus.cordova.ads;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.res.Configuration;
 import android.util.Log;
 import android.view.Gravity;
@@ -42,7 +43,7 @@ public class Banner extends AdBase {
     private AdView mAdViewOld = null;
 
     public Banner(ExecuteContext ctx) {
-        super(ctx);
+        super(ctx, AdType.BANNER);
 
         this.adSize = ctx.optAdSize();
         this.gravity = "top".equals(ctx.optPosition()) ? Gravity.TOP : Gravity.BOTTOM;
@@ -100,7 +101,7 @@ public class Banner extends AdBase {
             }
 
             @Override
-            public void onAdFailedToLoad(LoadAdError error) {
+            public void onAdFailedToLoad(@NonNull LoadAdError error) {
                 emit(Events.AD_LOAD_FAIL, error);
                 emit(Events.BANNER_LOAD_FAIL, error);
             }
@@ -149,7 +150,7 @@ public class Banner extends AdBase {
     }
 
     @Override
-    public void show(Context ctx) {
+    public void show(Context ctx, Activity activity) {
         if (mAdView.getParent() == null) {
             addBannerView();
         } else if (mAdView.getVisibility() == View.GONE) {

@@ -23,7 +23,8 @@
         <preference name="PLAY_SERVICES_VERSION" default="20.6.0" />
 
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
-            <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:excludeFromRecents="true" android:name="com.google.android.gms.ads.AdActivity" android:noHistory="true" />
+            <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:excludeFromRecents="true" android:exported="false" android:name="admob.plus.core.AdMobAdActivity" android:noHistory="true" />
+            <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:excludeFromRecents="true" android:exported="false" android:name="com.google.android.gms.ads.AdActivity" android:noHistory="true" />
             <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="$APP_ID_ANDROID" />
             <meta-data android:name="com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT" android:value="true"/>
         </config-file>
@@ -41,6 +42,7 @@
         <source-file src="src/android/cordova/ExecuteContext.java" target-dir="src/admob/plus/cordova" />
         <source-file src="src/android/cordova/Generated.java" target-dir="src/admob/plus/cordova" />
         <source-file src="src/android/cordova/ads/AdBase.java" target-dir="src/admob/plus/cordova/ads" />
+        <source-file src="src/android/cordova/ads/AdType.java" target-dir="src/admob/plus/cordova/ads" />
         <source-file src="src/android/cordova/ads/AppOpen.java" target-dir="src/admob/plus/cordova/ads" />
         <source-file src="src/android/cordova/ads/Banner.java" target-dir="src/admob/plus/cordova/ads" />
         <source-file src="src/android/cordova/ads/Interstitial.java" target-dir="src/admob/plus/cordova/ads" />
@@ -48,6 +50,7 @@
         <source-file src="src/android/cordova/ads/Rewarded.java" target-dir="src/admob/plus/cordova/ads" />
         <source-file src="src/android/cordova/ads/RewardedInterstitial.java" target-dir="src/admob/plus/cordova/ads" />
         <source-file src="src/android/core/Ad.java" target-dir="src/admob/plus/core" />
+        <source-file src="src/android/core/AdMobAdActivity.java" target-dir="src/admob/plus/core" />
         <source-file src="src/android/core/Context.java" target-dir="src/admob/plus/core" />
         <source-file src="src/android/core/GenericAd.java" target-dir="src/admob/plus/core" />
         <source-file src="src/android/core/Helper.java" target-dir="src/admob/plus/core" />

@@ -1,5 +1,7 @@
 package admob.plus.cordova.ads;
 
+import android.app.Activity;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.ads.AdError;
@@ -9,21 +11,23 @@ import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 
+import admob.plus.cordova.AdMob;
 import admob.plus.cordova.ExecuteContext;
 import admob.plus.cordova.Generated.Events;
+import admob.plus.core.AdMobAdActivity;
 import admob.plus.core.Context;
 
 public class Interstitial extends AdBase {
     private InterstitialAd mAd = null;
 
     public Interstitial(ExecuteContext ctx) {
-        super(ctx);
+        super(ctx, AdType.INTERSTITIAL);
     }
 
     @Override
     public void onDestroy() {
         clear();
-
+        onCloseAd();
         super.onDestroy();
     }
 
@@ -38,19 +42,22 @@ public class Interstitial extends AdBase {
                 mAd.setFullScreenContentCallback(new FullScreenContentCallback() {
                     @Override
                     public void onAdDismissedFullScreenContent() {
+                        clear();
                         emit(Events.AD_DISMISS);
                         emit(Events.INTERSTITIAL_DISMISS);
+                        onCloseAd();
                     }
 
                     @Override
-                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                    public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
+                        clear();
                         emit(Events.AD_SHOW_FAIL, adError);
                         emit(Events.INTERSTITIAL_SHOW_FAIL, adError);
+                        onCloseAd();
                     }
 
                     @Override
                     public void onAdShowedFullScreenContent() {
-                        mAd = null;
                         emit(Events.AD_SHOW);
                         emit(Events.INTERSTITIAL_SHOW);
                     }
@@ -83,9 +90,9 @@ public class Interstitial extends AdBase {
     }
 
     @Override
-    public void show(Context ctx) {
+    public void show(Context ctx, Activity activity) {
         if (isLoaded()) {
-            mAd.show(getActivity());
+            mAd.show(activity);
             ctx.resolve();
         } else {
             ctx.reject("Ad is not loaded");
@@ -97,5 +104,12 @@ public class Interstitial extends AdBase {
             mAd.setFullScreenContentCallback(null);
             mAd = null;
         }
+    }
+
+    private void onCloseAd() {
+        if (AdMobAdActivity.activity != null) {
+            AdMobAdActivity.activity.finish();
+        }
+        AdMob.removeContextByAdId(id);
     }
 }

@@ -1,5 +1,9 @@
 package admob.plus.cordova.ads;
 
+import android.app.Activity;
+
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.FullScreenContentCallback;
@@ -16,7 +20,7 @@ public class AppOpen extends AdBase {
     private AppOpenAd mAd = null;
 
     public AppOpen(ExecuteContext ctx) {
-        super(ctx);
+        super(ctx, AdType.APP_OPEN);
 
         mAdRequest = ctx.optAdRequest();
 
@@ -40,7 +44,7 @@ public class AppOpen extends AdBase {
                 mAdRequest,
                 mOrientation, new AppOpenAd.AppOpenAdLoadCallback() {
                     @Override
-                    public void onAdLoaded(AppOpenAd ad) {
+                    public void onAdLoaded(@NonNull AppOpenAd ad) {
                         mAd = ad;
                         ad.setFullScreenContentCallback(new FullScreenContentCallback() {
                             @Override
@@ -50,7 +54,7 @@ public class AppOpen extends AdBase {
                             }
 
                             @Override
-                            public void onAdFailedToShowFullScreenContent(AdError adError) {
+                            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
                                 clear();
                                 emit(Events.AD_SHOW_FAIL, adError);
                             }
@@ -71,7 +75,7 @@ public class AppOpen extends AdBase {
                     }
 
                     @Override
-                    public void onAdFailedToLoad(LoadAdError loadAdError) {
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                         clear();
                         emit(Events.AD_LOAD_FAIL, loadAdError);
                         ctx.reject(loadAdError.toString());
@@ -85,8 +89,8 @@ public class AppOpen extends AdBase {
     }
 
     @Override
-    public void show(Context ctx) {
-        mAd.show(getActivity());
+    public void show(Context ctx, Activity activity) {
+        mAd.show(activity);
         ctx.resolve(true);
     }
 

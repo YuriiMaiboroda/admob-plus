@@ -1,5 +1,7 @@
 package admob.plus.cordova.ads;
 
+import android.app.Activity;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.ads.AdError;
@@ -10,21 +12,23 @@ import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.gms.ads.rewarded.ServerSideVerificationOptions;
 
+import admob.plus.cordova.AdMob;
 import admob.plus.cordova.ExecuteContext;
 import admob.plus.cordova.Generated.Events;
+import admob.plus.core.AdMobAdActivity;
 import admob.plus.core.Context;
 
 public class Rewarded extends AdBase {
     private RewardedAd mAd = null;
 
     public Rewarded(ExecuteContext ctx) {
-        super(ctx);
+        super(ctx, AdType.REWARDED);
     }
 
     @Override
     public void onDestroy() {
         clear();
-
+        onCloseAd();
         super.onDestroy();
     }
 
@@ -51,19 +55,22 @@ public class Rewarded extends AdBase {
                 mAd.setFullScreenContentCallback(new FullScreenContentCallback() {
                     @Override
                     public void onAdDismissedFullScreenContent() {
+                        clear();
                         emit(Events.AD_DISMISS);
                         emit(Events.REWARDED_DISMISS);
+                        onCloseAd();
                     }
 
                     @Override
-                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                    public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
+                        clear();
                         emit(Events.AD_SHOW_FAIL, adError);
                         emit(Events.REWARDED_SHOW_FAIL, adError);
+                        onCloseAd();
                     }
 
                     @Override
                     public void onAdShowedFullScreenContent() {
-                        clear();
                         emit(Events.AD_SHOW);
                         emit(Events.REWARDED_SHOW);
                     }
@@ -88,9 +95,9 @@ public class Rewarded extends AdBase {
     }
 
     @Override
-    public void show(Context ctx) {
+    public void show(Context ctx, Activity activity) {
         if (isLoaded()) {
-            mAd.show(getActivity(), rewardItem -> {
+            mAd.show(activity, rewardItem -> {
                 emit(Events.AD_REWARD, rewardItem);
                 emit(Events.REWARDED_REWARD, rewardItem);
             });
@@ -104,5 +111,12 @@ public class Rewarded extends AdBase {
         if (mAd != null) {
             mAd = null;
         }
+    }
+
+    private void onCloseAd() {
+        if (AdMobAdActivity.activity != null) {
+            AdMobAdActivity.activity.finish();
+        }
+        AdMob.removeContextByAdId(id);
     }
 }

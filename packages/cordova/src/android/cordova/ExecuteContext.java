@@ -38,7 +38,7 @@ public class ExecuteContext implements Context {
     }
 
     @Override
-    public boolean has(String name) {
+    public boolean has(@NonNull String name) {
         return opts.has(name);
     }
 
@@ -71,7 +71,7 @@ public class ExecuteContext implements Context {
 
     @Nullable
     @Override
-    public String optString(String name) {
+    public String optString(@NonNull String name) {
         if (!opts.has(name)) return null;
         return opts.optString(name);
     }

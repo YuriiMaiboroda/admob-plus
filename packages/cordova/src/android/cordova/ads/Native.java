@@ -1,5 +1,6 @@
 package admob.plus.cordova.ads;
 
+import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -24,7 +25,7 @@ import static admob.plus.core.Helper.dpToPx;
 
 public class Native extends AdBase {
     public static final String VIEW_DEFAULT_KEY = "default";
-    public static final Map<String, ViewProvider> providers = new HashMap<String, ViewProvider>();
+    public static final Map<String, ViewProvider> providers = new HashMap<>();
 
     private final AdRequest mAdRequest;
     private final ViewProvider viewProvider;
@@ -33,7 +34,7 @@ public class Native extends AdBase {
     private View view;
 
     public Native(ExecuteContext ctx) {
-        super(ctx);
+        super(ctx, AdType.NATIVE);
 
         mAdRequest = ctx.optAdRequest();
         String key = ctx.optString("view");
@@ -68,7 +69,7 @@ public class Native extends AdBase {
                 })
                 .withAdListener(new AdListener() {
                     @Override
-                    public void onAdFailedToLoad(LoadAdError adError) {
+                    public void onAdFailedToLoad(@NonNull LoadAdError adError) {
                         emit(Events.AD_LOAD_FAIL, adError);
                         if (isLoaded()) {
                             ctx.reject(adError.toString());
@@ -103,7 +104,7 @@ public class Native extends AdBase {
     }
 
     @Override
-    public void show(Context ctx) {
+    public void show(Context ctx, Activity activity) {
         if (view == null) {
             view = viewProvider.createView(mAd);
             Objects.requireNonNull(getContentView()).addView(view);

@@ -1,6 +1,7 @@
 package admob.plus.cordova;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.util.Log;
 
@@ -19,24 +20,29 @@ import java.util.Map;
 
 import admob.plus.cordova.Generated.Actions;
 import admob.plus.cordova.ads.AdBase;
+import admob.plus.cordova.ads.AdType;
 import admob.plus.cordova.ads.AppOpen;
 import admob.plus.cordova.ads.Banner;
 import admob.plus.cordova.ads.Interstitial;
 import admob.plus.cordova.ads.Native;
 import admob.plus.cordova.ads.Rewarded;
 import admob.plus.cordova.ads.RewardedInterstitial;
+import admob.plus.core.AdMobAdActivity;
 import admob.plus.core.GenericAd;
 import admob.plus.core.Helper;
 
 import static admob.plus.core.Helper.ads;
 
+import androidx.annotation.Nullable;
+
 
 public class AdMob extends CordovaPlugin implements Helper.Adapter {
     public static final String NATIVE_VIEW_DEFAULT = Native.VIEW_DEFAULT_KEY;
     private static final String TAG = "AdMobPlus";
-    private final ArrayList<PluginResult> eventQueue = new ArrayList<PluginResult>();
+    private final ArrayList<PluginResult> eventQueue = new ArrayList<>();
     public Helper helper;
     private CallbackContext readyCallbackContext = null;
+    private static final Map<Integer, ExecuteContext> adContexts = new HashMap<>();
 
     public static void registerNativeAdViewProviders(Map<String, Native.ViewProvider> providers) {
         Native.providers.putAll(providers);
@@ -131,6 +137,15 @@ public class AdMob extends CordovaPlugin implements Helper.Adapter {
         return true;
     }
 
+    @Nullable
+    public static ExecuteContext getContextByAdId(int adId) {
+        return adContexts.get(adId);
+    }
+
+    public static void removeContextByAdId(int adId) {
+        adContexts.remove(adId);
+    }
+
     private boolean executeReady(CallbackContext callbackContext) {
         if (readyCallbackContext == null) {
             for (PluginResult result : eventQueue) {
@@ -172,7 +187,20 @@ public class AdMob extends CordovaPlugin implements Helper.Adapter {
             GenericAd ad = (GenericAd) ctx.optAdOrError();
             if (ad != null) {
                 if (ad.isLoaded()) {
-                    ad.show(ctx);
+                    final String adType = ad.getType();
+                    if (AdType.INTERSTITIAL.equals(adType) || AdType.REWARDED.equals(adType)) {
+                        adContexts.put(ad.getId(), ctx);
+                        final Activity activity = getActivity();
+                        Log.d(TAG, "Opening AdMob " + adType + " Activity");
+
+                        Intent intent = new Intent(activity, AdMobAdActivity.class);
+                        intent.putExtra("adId", ad.getId());
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                        activity.startActivity(intent);
+                    } else {
+                        ad.show(ctx, getActivity());
+                    }
                 } else {
                     ctx.resolve(false);
                 }
@@ -229,6 +257,12 @@ public class AdMob extends CordovaPlugin implements Helper.Adapter {
         }
 
         Banner.destroyParentView();
+        adContexts.clear();
+
+        if (AdMobAdActivity.activity != null) {
+            AdMobAdActivity.activity.finish();
+            AdMobAdActivity.activity = null;
+        }
 
         super.onDestroy();
     }

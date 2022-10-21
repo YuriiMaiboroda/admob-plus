@@ -1,9 +1,10 @@
 package admob.plus.cordova.ads;
 
+import android.app.Activity;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.ads.AdError;
-import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.rewarded.ServerSideVerificationOptions;
@@ -18,7 +19,7 @@ public class RewardedInterstitial extends AdBase {
     private RewardedInterstitialAd mAd = null;
 
     public RewardedInterstitial(ExecuteContext ctx) {
-        super(ctx);
+        super(ctx, AdType.REWARDED_INTERSTITIAL);
     }
 
     @Override
@@ -56,7 +57,7 @@ public class RewardedInterstitial extends AdBase {
                     }
 
                     @Override
-                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                    public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
                         emit(Events.AD_SHOW_FAIL, adError);
                         emit(Events.REWARDED_INTERSTITIAL_SHOW_FAIL, adError);
                     }
@@ -88,9 +89,9 @@ public class RewardedInterstitial extends AdBase {
     }
 
     @Override
-    public void show(Context ctx) {
+    public void show(Context ctx, Activity activity) {
         if (isLoaded()) {
-            mAd.show(getActivity(), rewardItem -> {
+            mAd.show(activity, rewardItem -> {
                 emit(Events.AD_REWARD, rewardItem);
                 emit(Events.REWARDED_INTERSTITIAL_REWARD, rewardItem);
             });
